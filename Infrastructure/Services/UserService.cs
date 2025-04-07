@@ -97,10 +97,26 @@ public class UserService(DataContext context) : IUserService
             Id = user.Id,
             Username = user.Username,
             Email = user.Email,
-            PostCount = user.Posts.Count(p=>p.UserId==user.Id)
+            PostCount = user.Posts.Count(p => p.UserId == user.Id)
         };
         return result == 0 ?
         new Response<UserDTO>(HttpStatusCode.BadRequest, "User can`t updated")
         : new Response<UserDTO>(userdto);
     }
+
+    public async Task<Response<List<UserPostsDto>>> GetuserPst(int userId)
+    {
+        var posts = await context.Posts
+               .Where(p => p.UserId == userId)
+               .Select(p => new UserPostsDto
+               {
+                   Content = p.Content,
+                   CreatedAt = p.CreatedAt,
+                   Username = p.User.Username
+               })
+               .ToListAsync();
+
+        return new Response<List<UserPostsDto>>(posts);
+    }
+
 }

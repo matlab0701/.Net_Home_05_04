@@ -112,4 +112,25 @@ public class PostService(DataContext context) : IPostService
         : new Response<PostDTO>(postDto);
     }
 
+    public async Task<Response<List<LatestPostsDto>>> GetPostUser()
+    {
+        var posts = await context.Posts
+           .Include(p => p.User)
+            .OrderByDescending(p => p.CreatedAt)
+            .Take(5)
+            .ToListAsync();
+
+        var result = posts.Select(p => new LatestPostsDto()
+        {
+            Id=p.Id,
+            CreatedAt = p.CreatedAt,
+            Username = p.User.Username,
+            Content=p.Content
+        }).ToList();
+
+
+        return new Response<List<LatestPostsDto>>(result);
+    }
+
+
 }
