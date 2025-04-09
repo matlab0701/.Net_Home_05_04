@@ -10,4 +10,7 @@ public interface IPostService
     Task<Response<PostDTO>> GetByIdAsync(int Id);
     Task<Response<PostDTO>> UpdateAsync(int Id, UpdateDto request);
     Task<Response<string>> DeleteAsync(int Id);
+
+    Task<Response<List<HighCommentPostDto>>> HighCommentPost();
+
 }

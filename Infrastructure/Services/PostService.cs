@@ -122,15 +122,62 @@ public class PostService(DataContext context) : IPostService
 
         var result = posts.Select(p => new LatestPostsDto()
         {
-            Id=p.Id,
+            Id = p.Id,
             CreatedAt = p.CreatedAt,
             Username = p.User.Username,
-            Content=p.Content
+            Content = p.Content
         }).ToList();
 
 
         return new Response<List<LatestPostsDto>>(result);
     }
 
+    public async Task<Response<List<ActivePosterDto>>> ActivePosters()
+    {
+        var activeUsers = await context.Users
+            .Include(u => u.Posts)
+            .Where(u => u.Posts.Count > 0).ToListAsync();
+
+        var data = activeUsers
+            .Select(u => new ActivePosterDto()
+            {
+                Username = u.Username,
+                PostCount = u.Posts.Count
+            }).ToList();
+
+        return new Response<List<ActivePosterDto>>(data);
+    }
+
+    public async Task<Response<List<HighCommentPostDto>>> HighCommentPost()
+    {
+        var posts = await context.Posts
+        .Where(p => p.Comments.Count > 10)
+        .Select(p => new HighCommentPostDto()
+        {
+            Username = p.User.Username,
+            Content = p.Content,
+            CommentCount = p.Comments.Count
+        }).ToListAsync();
+
+        return new Response<List<HighCommentPostDto>>(posts);
+    }
+
+    public async Task<Response<List<RecentPopularPostDto>>> GetRecentPopularPosts()
+{
+    var posts = await context.Posts
+        .Where(p => p.Comments.Count > 5)
+        .OrderByDescending(p => p.CreatedAt)
+        .Take(5)
+        .Select(p => new RecentPopularPostDto
+        {
+            Content = p.Content,
+            Username = p.User.Username,
+            CreatedAt = p.CreatedAt,
+            CommentCount = p.Comments.Count
+        })
+        .ToListAsync();
+
+    return new Response<List<RecentPopularPostDto>>(posts);
+}
 
 }

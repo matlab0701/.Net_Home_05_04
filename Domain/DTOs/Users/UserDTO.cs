@@ -10,4 +10,5 @@ public class UserDTO
     public string Email { get; set; }
 
     public int PostCount { get; set; }
+    public DateTimeOffset JoinDate { get; set; }
 }
